@@ -1,0 +1,21 @@
+# Config sensible — jamais versionnée
+config/hosts.py
+
+# Secrets / clés
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+.env
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# Sauvegardes locales (Job 10)
+backups/
+
+# Logs locaux
+*.log
