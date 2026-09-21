@@ -1,4 +1,4 @@
-# PSMM — Centralisation des protocoles de gestion d'erreurs
+# PSMM - Centralisation des protocoles de gestion d'erreurs
 
 > Rapport du Commandeur Data — Sous-système PSMM (Python, Shell, MariaDB, Mail)
 > Bachelor Administrateur Systèmes et Réseaux — La Plateforme_
@@ -15,17 +15,15 @@ et alerter automatiquement l'administrateur (mail quotidien, alertes de seuil, G
 
 | VM | Rôle | RAM | vCPU | Disque |
 |---|---|---|---|---|
-| `PSSM_ftp` | Serveur FTP | 1 Go | 1 | 8 Go |
-| `PSSM_web` | Apache/Nginx + site en auth basic | 1 Go | 1 | 8 Go |
-| `PSSM_mariadb` | Serveur MariaDB | 2 Go | 2 | 8 Go |
+| `PSMM_ftp` | Serveur FTP | 1 Go | 1 | 8 Go |
+| `PSMM_web` | Apache/Nginx + site en auth basic | 1 Go | 1 | 8 Go |
+| `PSMM_mariadb` | Serveur MariaDB | 2 Go | 2 | 8 Go |
 
 Contraintes communes aux trois VM :
 - Pas d'accès SSH au compte `root`
 - Seul le compte `monitor` peut se connecter en SSH, authentification **par clé SSH uniquement**
 - `monitor` fait partie du groupe `sudo`
 
-> ⚠️ L'énoncé nomme le sous-système « PSMM » mais demande un préfixe de VM « PSSM_ » —
-> conservé tel quel, comme indiqué dans le sujet.
 
 ### VM sonde (Job 02)
 
@@ -35,7 +33,7 @@ VM Debian **sans interface graphique**, qui exécute tous les scripts `ssh_*.py`
 - Client FTP en CLI
 - Bibliothèque d'envoi de mail (`smtplib`)
 
-Nom proposé : `PSSM_monitor` (à ajuster selon convention retenue).
+Nom proposé : `PSMM_monitor` (à ajuster selon convention retenue).
 
 ## 3. Feuille de route
 
