@@ -29,8 +29,7 @@ from ssh_login import connect, HOSTS
 def ssh_run_sudo_command(cible: str, commande: str, mot_de_passe_sudo: str) -> tuple[str, str]:
     """
     Se connecte au serveur désigné par `cible` et exécute `commande` en sudo.
-    Retourne (sortie_standard, sortie_erreur) — le prompt sudo lui-même est
-    filtré de la sortie d'erreur.
+    Retourne (sortie_standard, sortie_erreur).
     """
     client = connect(cible)
     try:
@@ -43,11 +42,12 @@ def ssh_run_sudo_command(cible: str, commande: str, mot_de_passe_sudo: str) -> t
     finally:
         client.close()
 
-    # sudo -S écrit son propre prompt ("[sudo] password for monitor:")
-    # sur stderr : on le retire pour ne garder que les vraies erreurs.
+    # Le prompt sudo commence toujours par "[sudo]", quelle que soit la
+    # langue de la VM (seul le texte qui suit est traduit par PAM) — on
+    # filtre sur ce préfixe plutôt que sur une phrase précise.
     erreur = "\n".join(
         ligne for ligne in erreur_brute.splitlines()
-        if "password for" not in ligne.lower()
+        if not ligne.strip().startswith("[sudo]")
     )
 
     return sortie, erreur
