@@ -6,6 +6,11 @@ Envoie à l'administrateur un mail récapitulant les tentatives de connexion
 échouées (MySQL, FTP, Web) de la veille, à partir de la table partagée
 `tentatives_connexion` (Jobs 06-08).
 
+L'envoi passe par `msmtp` (méthode officielle, voir doc LIN-SMTP-001),
+configuré dans ~/.msmtprc (chmod 600) plutôt que par une connexion SMTP
+directe en Python : le mot de passe d'application Gmail n'est ainsi jamais
+stocké dans un script ni dans un fichier de config versionné.
+
 Usage :
     python3 ssh_serveur_mail.py               # tentatives d'hier (usage normal, en tâche planifiée)
     python3 ssh_serveur_mail.py 2026-09-21     # tentatives d'une date précise (pratique pour tester
@@ -14,8 +19,7 @@ Usage :
 
 import sys
 import os
-import smtplib
-from email.mime.text import MIMEText
+import subprocess
 from datetime import date, datetime, timedelta
 import pymysql
 
@@ -60,16 +64,16 @@ def construire_corps_mail(tentatives: list[tuple], jour: date) -> str:
 
 
 def envoyer_mail(sujet: str, corps: str) -> None:
-    """Envoie le mail via le serveur SMTP configuré dans config/hosts.py."""
-    message = MIMEText(corps, "plain", "utf-8")
-    message["Subject"] = sujet
-    message["From"] = MAIL["sender"]
-    message["To"] = MAIL["admin_recipient"]
+    """Envoie le mail via msmtp (compte 'gmail' configuré par défaut dans ~/.msmtprc)."""
+    destinataire = MAIL["admin_recipient"]
+    contenu = f"To: {destinataire}\nSubject: {sujet}\n\n{corps}"
 
-    with smtplib.SMTP(MAIL["smtp_server"], MAIL["smtp_port"]) as serveur:
-        serveur.starttls()
-        serveur.login(MAIL["sender"], MAIL["sender_password"])
-        serveur.send_message(message)
+    resultat = subprocess.run(
+        ["msmtp", destinataire],
+        input=contenu, text=True, capture_output=True,
+    )
+    if resultat.returncode != 0:
+        raise RuntimeError(f"Échec de l'envoi via msmtp (code {resultat.returncode}) : {resultat.stderr}")
 
 
 if __name__ == "__main__":
@@ -85,6 +89,6 @@ if __name__ == "__main__":
     corps = construire_corps_mail(tentatives, jour_cible)
     sujet = f"[PSMM] Rapport des tentatives de connexion — {jour_cible}"
 
-    print(f"Envoi du mail à {MAIL['admin_recipient']}...")
+    print(f"Envoi du mail à {MAIL['admin_recipient']} (via msmtp)...")
     envoyer_mail(sujet, corps)
     print("Mail envoyé.")
