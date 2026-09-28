@@ -9,21 +9,23 @@ identifiants, mots de passe ou clés.
 """
 
 # --- Job 01/02 : serveurs cibles et VM sonde -------------------------------
+# key_path pointe vers la clé dédiée générée SUR la sonde (Job 02),
+# pas vers une clé du PC Windows.
 HOSTS = {
     "ftp": {
         "hostname": "192.168.X.X",
         "user": "monitor",
-        "key_path": "~/.ssh/id_ed25519",
+        "key_path": "~/.ssh/psmm_sonde",
     },
     "web": {
         "hostname": "192.168.X.X",
         "user": "monitor",
-        "key_path": "~/.ssh/id_ed25519",
+        "key_path": "~/.ssh/psmm_sonde",
     },
     "sql": {
         "hostname": "192.168.X.X",
         "user": "monitor",
-        "key_path": "~/.ssh/id_ed25519",
+        "key_path": "~/.ssh/psmm_sonde",
     },
 }
 
@@ -36,11 +38,11 @@ MYSQL = {
 }
 
 # --- Job 09/12 : envoi de mail -----------------------------------------------
+# L'envoi passe par msmtp (voir doc LIN-SMTP-001), configuré séparément dans
+# ~/.msmtprc sur la sonde (compte SMTP, expéditeur, mot de passe d'application).
+# Rien de tout ça n'est stocké ici : ~/.msmtprc est protégé en chmod 600,
+# et seul le destinataire des rapports est nécessaire côté script.
 MAIL = {
-    "smtp_server": "smtp.example.com",
-    "smtp_port": 587,
-    "sender": "psmm-monitor@example.com",
-    "sender_password": "CHANGE_ME",
     "admin_recipient": "admin@example.com",
 }
 
